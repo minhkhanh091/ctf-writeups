@@ -73,6 +73,8 @@ So if checkNum == true => ```x[0] << 3 = -709523480 ^ x[0]```
 ### Step 6:
 As "x[0]" is 32bit signed-integer, we can apply brute-froce x[0] = [-2^31 - 1, 2^31]
 
+"use C instead of Python"
+
 ---
 
 ## 🔑 Flag: `-1352854872`
