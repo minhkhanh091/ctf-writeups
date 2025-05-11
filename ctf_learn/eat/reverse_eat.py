@@ -1,7 +1,3 @@
-# I wrote and debugged this code with all the convoluted "int" variable names.
-# Was it confusing? Yes. Was debugging hard? Yes.
-# Did I spend more time than I should have on this problem? Yes
-
 EATEATEATEATEATEAT = str.isdigit
 
 def EAt(eat, eats): # #E10#a23#t90#90t#9ae#014#0 -> eats = Eat9900 | eat = 1023900tae14
@@ -51,12 +47,3 @@ def Eat(eat):
 print("what's the answer")
 eat = input()
 Eat(eat)
-
-
-# Prove for flag:
-# - first 3 char must be number!
-# - 
-
-# flag: XXX___009
-
-# 900______
