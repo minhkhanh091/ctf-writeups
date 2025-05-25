@@ -1,0 +1,9 @@
+0x6d7592
+
+
+key = 0x6d756a
+
+for i in range(0, 8):
+  key += 5
+
+print(hex(key))
