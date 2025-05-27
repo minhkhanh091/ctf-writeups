@@ -73,4 +73,31 @@ puVar8 = puVar9;
 } while (local_38 != puVar9);
 ```
 
-À, tại đây, local_438. Nó đang thưc 
+Đây rồi, nó đang thực hiện các phép toán để thay đổi gán giá trị local_438. Và ở đây ta chứ ý một điều, cái giá trị của local_438 nó đang phụ thuộc vào hai giá trị của ```Tuscany``` và ```Umbria```. Cho nên hãy cùng nhìn lại một chút:
+```C
+if (param_2[7] == 'm') {
+    *Tuscany = 0xa2c8;
+    cVar1 = param_2[0xd];
+}
+```
+Ở đây, ta có vài trường hợp, và tôi không chắc chắn rằng cái ```==``` có thật sự là xác định tại ```flag[7] = 'm'``` hay không. Cho nên ta dùng làm một số phép thử với từng giá trị của ```Tuscany``` và ```Umbria```. Nếu không đúng thì ta lại dùng giá trị khác!
+
+Quay lại với phần kiểm tra flag bằng phép XOR của ```Calabria()```, ta thấy rằng ```Apulia``` chính phần dữ liệu được dump vào ```rawdata.txt```. Và để giải được ta sẽ dump, ```Apulia``` và ```local_438```, sau đó brute-force từng mã ASCII để xem như thế nào.
+
+Và hãy nhớ rằng dữ liệu của ```local_438``` phụ thuộc vào ```Tuscany``` và ```Umbria``` cho nên bạn phải thử hết các giá trị của nó (trong Lazio()). Ở đây tôi đã, tìm ra được 2 giá trị đó là ...
+
+```python
+apulia = [0x759f7565,0x4e10b5f6,0x60c0faf7,0x43db873e,...]
+local_438 = [0x759f7518,0x4e10b5ad,0x60c0faa2, ...]
+key = ""
+
+for i in range(0, 20):
+  for c in range(0x20, 0x7f):
+    uVar6 = local_438[i] % (c + 0x25 + ((c * 0x25 + 0x17) * c + 9) * c  * c) & 0xff
+    if (c + local_438[uVar6]) == apulia[uVar6]:
+      key += chr(c)
+      break
+
+print(key)
+```
+
