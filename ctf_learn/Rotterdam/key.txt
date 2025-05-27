@@ -1,0 +1,6 @@
+Rotterda_P0rt_Rh1ne_Bl1tz_\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Rotterda_P0rt_Rh1ne_Bl1tz_W1tte
+
+ffffffffff
+
+x - (x/y) * y = x mod y

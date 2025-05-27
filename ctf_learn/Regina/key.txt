@@ -1,0 +1,55 @@
+bad flag = O_Canada_We_Stand_On_Guard_For_Thee!
+
+flag_len: 0x1a
+
+part_1: Sa5ka7ch
+-> Solve: 
+	key = [0x53,0x61,0x35,0x6b,0x61,0x37,0x63,0x68]
+	print(("".join(chr(i) for i in key)))
+
+part_2: ewan_Whe
+-> Solve: 
+	key = [0x65,0x68,0x57,0x5f,0x6e,0x61,0x77,0x65]
+	print(("".join(chr(i) for i in key))[::-1])
+
+part_3: at_Count
+-> Solve:
+	key = [0x47,0xe6,0x57,0xf6,0x34,0xf5,0x47,0x16]
+	res = ""
+
+	for i in range(8):
+	    for rax in range(0x21, 0x7f):  # từ '!' (0x21) đến '~' (0x7e)
+	        r10 = rax >> 4
+	        r11 = (rax << 4) & 0xff
+	        r11 |= r10
+	        if r11 == key[i]:
+	            print(hex(r10))
+	            res += chr(rax)
+	            break
+
+	print(res[::-1])
+
+final_flag: Sa5ka7chewan_Wheat_Country
+
+DAT_004022b8: Anti Debugger
+-> Skip: CF: set $eflags = $eflags | 1
+-> Skip: ZF: set $eflags = $eflags | (1 << 6)
+
+_Mainloop -> Label027 -> Label027a -> Label128 -> Label128x 
+-> Label256 -> Label128a -> Label270 -> Label304 -> Label304x 
+-> Label405 -> Label282 -> Label282x ->  Label133
+-> Label133x -> 
+
+Register info:
+- r9: user input len
+- r8: user input
+
+Breakpoint: 
+Num     Type           Disp Enb Address            What
+6       breakpoint     keep y   0x0000000000401908 <Label405>
+        breakpoint already hit 1 time
+7       breakpoint     keep y   0x0000000000401682 <Label133x>
+        breakpoint already hit 1 time
+8       breakpoint     keep y   0x00000000004014f5 <Label056>
+        breakpoint already hit 1 time
+9       breakpoint     keep y   0x00000000004010fd <Label012+3>

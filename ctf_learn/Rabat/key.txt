@@ -1,0 +1,59 @@
+Guess flag: aaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+Final flag:
+[r8 + 0x18]: 0x37616261 (0x37,0x61,0x62,0x61)
+	-> aba7
+[r8 + 0x10]: 0x525f6e6135356148 (0x52,0x5f,0x6e,0x61,0x35,0x35,0x61,0x48)
+	-> Ha55an_R
+
+[r8 + 0x8]: 0x5f73617961647530 (0x5f,0x73,0x61,0x79,0x61,0x64,0x75,0x30)
+	-> 0udayas_
+
+[r8]: 0x5f616e3164654d2b (0x5f,0x61,0x6e,0x31,0x64,0x65,0x4d,0x2b)
+	-> +Med1na_
+
+Combine: +Med1na_0udayas_Ha55an_Raba7
+
+Anti Debugger
+-> Skip: CF: set $eflags = $eflags | 1
+-> Skip: ZF: set $eflags = $eflags | (1 << 6)
+
+Code flow: entry -> _Apple -> _Banana -> _Coconut -> _DragonFruit -> 
+
+In "_Banana":
+- rax,[x0] = r8
+- rbx,[x1] = r8 + 0x8
+
+In "_Coconut":
+- imul rbx -> Compare RDX:RAX with 0x239024f9f888d600a1669a478f0f1f10
+- move addres: x0, x1 -> [y0], [y1]
+
+In "_Guava":
+- mov rax, -0x412b30553a363da5
+- add [x0] = rbx, [x1] = rcx
+- cmp rbx, rax
+-> We can find one of [x0] or [x1] here
+
+In "_HoneydewMelon"
+0040130b b8 61 62        MOV        EAX,0x37616261
+         61 37
+00401310 48 31 db        XOR        RBX,RBX
+00401313 41 8b 58 18     MOV        EBX,dword ptr [R8 + 0x18]
+00401317 41 ba 0c        MOV        R10D,0xc
+         00 00 00
+0040131d 48 39 d8        CMP        RAX,RBX
+-> We can find [R8 + 0x18] here, so it is 0x37616261
+-> Back to _Elderberry, we can find [r8 + 0x10] here by apply:
+	[r8 + 0x10] = [R8 + 0x18] * Q + R
+
+
+x * y = 0x239024f9f888d600a1669a478f0f1f10
+x + y = 0xBED4CFAAC5C9C25B
+-> x = 0xBED4CFAAC5C9C25B - y
+-> (0xBED4CFAAC5C9C25B - y) * y = 0x239024f9f888d600a1669a478f0f1f10
+-> y^2 - 0xBED4CFAAC5C9C25By = 0x239024f9f888d600a1669a478f0f1f10
+-> 
+
+-> x = (0x239024f9f888d600a1669a478f0f1f10 / y)
+-> (0x239024f9f888d600a1669a478f0f1f10 / y) + y = 0xBED4CFAAC5C9C25B
+-> 0x239024f9f888d600a1669a478f0f1f10 + y^2 = 0xBED4CFAAC5C9C25B

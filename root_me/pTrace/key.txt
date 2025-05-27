@@ -1,0 +1,2 @@
+url: https://www.root-me.org/en/Challenges/Cracking/ELF-x86-Ptrace
+key: easy
