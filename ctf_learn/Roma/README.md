@@ -1,6 +1,7 @@
-Đầu tiên, ta thấy trong ```main()``` gọi khá là nhiều hàm, và tôi thấy có khá là ít thông tin chúng ta cần ở ```main()```. Cho tôi sẽ xem lần lượt các hàm được gọi từ trên xuống.
+First, we can see that the ```main()``` function calls several other functions, but doesn’t seem to contain much useful information itself. So I decided to analyze each called function in top-down order.
 
-Đầu tiên là ```Sardinia()```, tôi thấy có vẻ như nó chỉ đang làm nhiệm vụ là kiểm tra xem flag có được nhập hay không và độ dài của flag! Tuy nhiên, tôi thấy:
+The first one is ```Sardinia()```. It appears to mainly check whether the flag was provided and validate its length. However, I noticed:
+
 ```C
 Tuscany = (undefined4 *)operator.new(4);
 *Tuscany = 0xbaadf00d;
@@ -8,9 +9,10 @@ Umbria = (undefined4 *)operator.new(4);
 *Umbria = 0xbaadf00d;
 ```
 
-Ở đây nó khởi tạo giá trị cho hai biến, có vẻ nó sẽ được dùng và việc gì đó chăng.
+Here, both ```Tuscany``` and ```Umbria``` are being allocated and initialized. They will likely be used later.
 
-Tiếp theo là ```Lazio()```, tổng quan thì tôi thấy hàm này đang kiểm tra flag có đúng định dạng hay khoong~. Đồng thời, tôi thấy một thông tin khá là quan trọng:
+Next is ```Lazio()```. Overall, this function checks if the flag format is correct. A key section is:
+
 ```C
 if (param_1[sVar2 - 1] == '}') {
 strncpy(param_2,param_1 + 9,sVar2 - 10);
@@ -31,19 +33,13 @@ return 1;
 }
 ```
 
-Tại đây, có vẻ nó đang chuyển phần flag trong { } và kiểm tra một số thứ. Tuy nhiên, thông quan trọng ở đây là:
-```C
-if (param_2[7] == 'm') {
-    *Tuscany = 0xa2c8;
-    cVar1 = param_2[0xd];
-}
-```
-Từ nội dung trên, ta có thể phần nào đoán được ```flag[7] = 'm'```. Đồng thời, sẽ thay đổi giá trị của ```Tuscany``` và phân bên dưới tương tự như vậy.
+This code extracts the flag content between {} and performs some checks. Notably, if ```flag[7] == 'm'```, then ```Tuscany = 0xa2c8```; otherwise, it's 0x78b2. Later, if the 13th character isn't 'T', Umbria is changed accordingly.
 
-Tiếp đến với ```Abruzz()```, đây có thể nhận định đây là phần dump một dữ liệu gì đó ra ```rawdata.txt``` và để lấy được phần dump đó ta chỉ đơn giản là tạo một file có tên là ```rawdata.txt```.
+Moving on to ```Abruzz()```, it appears to dump some data into rawdata.txt. You can retrieve it simply by creating a file with that name.
 
 
-Cuối cùng là ```Calabria()```, được rồi, có vẻ đây là phần nó sẽ kiểm tra flag của tôi nhập vào có khớp không bằng một vài phép XOR đơn giản:
+Finally, in ```Calabria()```, the actual flag validation occurs through a series of XOR-like operations:
+
 ```C
 local_43c = 0;
 sVar2 = 0;
@@ -59,7 +55,9 @@ sVar2 = sVar11 + 1;
 } while (sVar4 != sVar11 + 1);
 ```
 
-Ta có thể thấy ở đây, nó đang dùng bytes của flag (param_1) và thực hiện phép tính với ```local_438[sVar11]``` để tạo thành một index mới. Nhưng local_438[sVar11] là gì và nó từ đây ra. Có vẻ ta nên lướt lên trên một tí.
+Each flag byte is used in calculations involving ```local_438``` and compared with ```Apulia```, which is the data dumped to rawdata.txt.
+
+Now for how ```local_438``` is generated:
 
 ```C
 uVar3 = *Tuscany * 0x10000 + *Umbria;
@@ -73,18 +71,9 @@ puVar8 = puVar9;
 } while (local_38 != puVar9);
 ```
 
-Đây rồi, nó đang thực hiện các phép toán để thay đổi gán giá trị local_438. Và ở đây ta chứ ý một điều, cái giá trị của local_438 nó đang phụ thuộc vào hai giá trị của ```Tuscany``` và ```Umbria```. Cho nên hãy cùng nhìn lại một chút:
-```C
-if (param_2[7] == 'm') {
-    *Tuscany = 0xa2c8;
-    cVar1 = param_2[0xd];
-}
-```
-Ở đây, ta có vài trường hợp, và tôi không chắc chắn rằng cái ```==``` có thật sự là xác định tại ```flag[7] = 'm'``` hay không. Cho nên ta dùng làm một số phép thử với từng giá trị của ```Tuscany``` và ```Umbria```. Nếu không đúng thì ta lại dùng giá trị khác!
+Clearly, ```local_438``` depends entirely on the values of ```Tuscany``` and ```Umbria```, which are determined earlier in ```Lazio()```. So, you can brute-force possible values derived from that logic to try different seeds.
 
-Quay lại với phần kiểm tra flag bằng phép XOR của ```Calabria()```, ta thấy rằng ```Apulia``` chính phần dữ liệu được dump vào ```rawdata.txt```. Và để giải được ta sẽ dump, ```Apulia``` và ```local_438```, sau đó brute-force từng mã ASCII để xem như thế nào.
-
-Và hãy nhớ rằng dữ liệu của ```local_438``` phụ thuộc vào ```Tuscany``` và ```Umbria``` cho nên bạn phải thử hết các giá trị của nó (trong Lazio()). Ở đây tôi đã, tìm ra được 2 giá trị đó là ...
+Once both ```Apulia``` and ```local_438``` are known, you can brute-force the flag character-by-character. Here's an example script:
 
 ```python
 apulia = [0x759f7565,0x4e10b5f6,0x60c0faf7,0x43db873e,...]
@@ -100,4 +89,3 @@ for i in range(0, 20):
 
 print(key)
 ```
-
